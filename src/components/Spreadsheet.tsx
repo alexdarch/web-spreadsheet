@@ -1,13 +1,13 @@
-import React from 'react';
-import Cell from './Cell';
+import React from 'react'
+import Row from './Row'
 
 export default function Spreadsheet() {
-  return (
-    <>
-      <Cell />
-      <Cell />
-      <Cell />
-      <Cell />
-    </>
-  );
+    return (
+        <>
+            <Row />
+            <Row />
+            <Row />
+            <Row />
+        </>
+    )
 }
