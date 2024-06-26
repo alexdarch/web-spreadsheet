@@ -1,10 +1,8 @@
-import React from 'react';
-import Spreadsheet from './components/Spreadsheet';
+import React from 'react'
+import Spreadsheet from './components/Spreadsheet'
 
 function App() {
-  return (
-    <Spreadsheet />
-  );
+    return <Spreadsheet />
 }
 
-export default App;
+export default App

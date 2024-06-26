@@ -5,10 +5,10 @@ import '../styles/Components.css'
 
 export default function Row() {
     return (
-            <tr>
-                <Cell contents={'Alfreds Futterkiste2'} />
-                <Cell contents={'Maria Anders'} />
-                <Cell contents={'Germany'} />
-            </tr>
+        <tr>
+            <Cell contents={'Alfreds Futterkiste2'} />
+            <Cell contents={'Maria Anders'} />
+            <Cell contents={'Germany'} />
+        </tr>
     )
 }
