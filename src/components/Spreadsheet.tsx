@@ -7,7 +7,7 @@ export default function Spreadsheet() {
     const numColumns = 30
     const numRows = 15
 
-    const colHeaders = Array.from(Array(numColumns).keys()).map((index) => {
+    const headerRow = Array.from(Array(numColumns).keys()).map((index) => {
         let column = ''
         while (index > 0) {
             let remainder = (index - 1) % 26
@@ -16,17 +16,16 @@ export default function Spreadsheet() {
         }
         return <HeaderCell contents={column} />
     })
-    colHeaders[0] = (
+    headerRow[0] = (
         <button
-            content="reset"
-            title="reset"
-            style={{ width: '50px', height: '10px' }}
-        />
+            className="reset-button"
+            onClick={() => alert("clicked")}
+        >↻</button>
     )
 
     const rows = Array.from(Array(numRows).keys()).map((x) => {
         const contentCells = Array.from(Array(numColumns - 1).keys()).map(
-            (x) => <Cell contents="" />
+            (x) => <Cell contents="" keydown={(a, b, c) => alert("keydown")} calc={() => alert("calc")} />
         )
         return (
             <tr>
@@ -39,7 +38,7 @@ export default function Spreadsheet() {
     return (
         <table className="table">
             <tbody>
-                <tr>{colHeaders}</tr>
+                <tr>{headerRow}</tr>
                 {rows}
             </tbody>
         </table>
