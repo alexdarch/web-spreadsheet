@@ -17,15 +17,20 @@ export default function Spreadsheet() {
         return <HeaderCell contents={column} />
     })
     headerRow[0] = (
-        <button
-            className="reset-button"
-            onClick={() => alert("clicked")}
-        >↻</button>
+        <button className="reset-button" onClick={() => alert('clicked')}>
+            ↻
+        </button>
     )
 
     const rows = Array.from(Array(numRows).keys()).map((x) => {
         const contentCells = Array.from(Array(numColumns - 1).keys()).map(
-            (x) => <Cell contents="" keydown={(a, b, c) => alert("keydown")} calc={() => alert("calc")} />
+            (x) => (
+                <Cell
+                    contents=""
+                    keydown={(a, b, c) => alert('keydown')}
+                    calc={() => alert('calc')}
+                />
+            )
         )
         return (
             <tr>
