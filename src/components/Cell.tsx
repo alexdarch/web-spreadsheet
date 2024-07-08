@@ -1,32 +1,33 @@
 import React from 'react'
+import { useState, forwardRef } from 'react'
 import '../styles/Components.css'
+import '../types/types.d.ts'
+import { toCellId } from '../helpers/helpers'
 
-type CellProps = {
-    contents: string
-    keydown: (
-        event: React.KeyboardEvent<HTMLInputElement>,
-        col: number,
-        row: number
-    ) => void
-    calc: () => void
-}
-
-export default function Cell({
-    contents,
-    keydown,
-    calc,
-}: CellProps): JSX.Element {
-    const col = 10
-    const row = 5
+export default forwardRef(function Cell(
+    {
+        col,
+        row,
+        values,
+        setValues,
+        expressions,
+        setExpressions,
+        errors,
+        setErrors,
+    }: CellProps,
+    ref: React.ForwardedRef<HTMLInputElement>
+): JSX.Element {
+    function calc(): void {}
 
     return (
-        <td className="cell">
+        <td className="cell" key={toCellId(col, row)}>
             <input
-                id="a"
+                className="input"
                 onChange={(_) => calc()}
-                onKeyDown={(event) => keydown(event, col, row)}
+                ref={ref}
+                // onKeyDown={(event) => keydown(event, col, row)}
             />
-            {contents}
+            <div className="input">{'contents'}</div>
         </td>
     )
-}
+})
