@@ -27,11 +27,18 @@ export default function Spreadsheet() {
 
     // https://stackoverflow.com/questions/54633690/how-can-i-use-multiple-refs-for-an-array-of-elements-with-hooks
     // https://stackoverflow.com/questions/66664209/how-can-i-use-forwardref-in-react
-    const cellRefs = useRef(
-        Array(numColumns).map((_) =>
-            Array<HTMLInputElement | null>(numRows).fill(null)
-        )
+    const cellRefs = useRef<(HTMLInputElement | null)[][]>(
+        Array(numColumns)
+            .fill(null)
+            .map(() => Array(numRows).fill(null))
     )
+    useEffect(() => {
+        cellRefs.current = cellRefs.current
+            .slice(0, numColumns)
+            .map(
+                (row) => row?.slice(0, numRows) ?? Array(numColumns).fill(null)
+            )
+    }, [numColumns, numRows])
 
     const [values, setValues] = useState(
         Array<string>(numColumns).map((_) => Array<string>(numRows))
@@ -53,9 +60,11 @@ export default function Spreadsheet() {
         return <HeaderCell contents={column} />
     })
     headerRow[0] = (
-        <button className="reset-button" onClick={() => alert('clicked')}>
-            ↻
-        </button>
+        <td>
+            <button className="reset-button" onClick={() => alert('clicked')}>
+                ↻
+            </button>
+        </td>
     )
 
     // function updateFocusedCell(cell: { col: number; row: number } | undefined): void {
@@ -67,7 +76,6 @@ export default function Spreadsheet() {
     //     setFocusedElement()
     // }
 
-    // only run on mount
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) =>
             onKeyDown(event, numColumns, numRows, focusedCell, setFocusedCell)
@@ -76,11 +84,13 @@ export default function Spreadsheet() {
         return () => {
             document.removeEventListener('keydown', handleKeyDown)
         }
-    }, [])
+    }, [numColumns, numRows, focusedCell])
 
-    // Run whenever the focused cell changes
     useEffect(() => {
         if (focusedCell === undefined) return
+
+        console.log(focusedCell)
+        console.log(cellRefs.current)
 
         let { col, row } = fromCellId(focusedCell)
         if (cellRefs?.current[col] && cellRefs.current[col][row]) {
@@ -91,27 +101,17 @@ export default function Spreadsheet() {
     function createRow(row: number): JSX.Element[] {
         return Array.from(Array(numColumns - 1).keys()).map((col) => {
             return (
-                // <Cell
-                //     col={colNum}
-                //     row={rowNum}
-                //     ref={cellRefs.current[colNum][rowNum]}
-                //     values={values}
-                //     setValues={setValues}
-                //     expressions={expressions}
-                //     setExpressions={setExpressions}
-                //     errors={errors}
-                //     setErrors={setErrors}
-                //     // keydown={(a, b, c) => alert('keydown')}
-                //     // calc={() => alert('calc')}
-                // />
                 <td className="cell" key={toCellId(col, row)}>
                     <input
+                        key={`${toCellId(col, row)}-input`}
                         className="input"
                         onChange={(_) => {}}
                         ref={(el) => (cellRefs.current[col][row] = el)}
                         // onKeyDown={(event) => keydown(event, col, row)}
                     />
-                    <div className="text">{'contents'}</div>
+                    <div className="text" key={`${toCellId(col, row)}-text`}>
+                        {'contents'}
+                    </div>
                 </td>
             )
         })
@@ -120,9 +120,9 @@ export default function Spreadsheet() {
     return (
         <table className="table">
             <tbody>
-                <tr>{headerRow}</tr>
+                <tr key={'header-row'}>{headerRow}</tr>
                 {Array.from(Array(numRows - 1).keys()).map((rowNum) => (
-                    <tr>
+                    <tr key={rowNum}>
                         <HeaderCell contents={(rowNum + 1).toString()} />
                         {createRow(rowNum)}
                     </tr>
@@ -130,4 +130,18 @@ export default function Spreadsheet() {
             </tbody>
         </table>
     )
+
+    // <Cell
+    //     col={colNum}
+    //     row={rowNum}
+    //     ref={cellRefs.current[colNum][rowNum]}
+    //     values={values}
+    //     setValues={setValues}
+    //     expressions={expressions}
+    //     setExpressions={setExpressions}
+    //     errors={errors}
+    //     setErrors={setErrors}
+    //     // keydown={(a, b, c) => alert('keydown')}
+    //     // calc={() => alert('calc')}
+    // />
 }
