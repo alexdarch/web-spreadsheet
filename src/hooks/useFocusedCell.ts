@@ -15,13 +15,13 @@ export default function useFocusedCell() {
         if (cellId.substring(0, 5) !== '#cell') {
             return
         }
-        
+
         setFocusedCell(cellId)
         setActive(document.activeElement)
     }
 
     useEffect(() => {
-      // TODO: listen to keystrokes and move the key too
+        // TODO: listen to keystrokes and move the key too
         document.addEventListener('focusin', handleFocusIn)
         return () => {
             document.removeEventListener('focusin', handleFocusIn)

@@ -79,10 +79,15 @@ export default function Spreadsheet() {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) =>
             onKeyDown(event, numColumns, numRows, focusedCell, setFocusedCell)
+        const handleMouseDown = (event: MouseEvent) => {
+            console.log('hi')
+        }
         document.addEventListener('keydown', handleKeyDown)
+        document.addEventListener('mousedown', handleMouseDown)
         // unmount event listener when component is unmounted
         return () => {
             document.removeEventListener('keydown', handleKeyDown)
+            document.removeEventListener('mousedown', handleMouseDown)
         }
     }, [numColumns, numRows, focusedCell])
 
@@ -107,7 +112,7 @@ export default function Spreadsheet() {
                         className="input"
                         onChange={(_) => {}}
                         ref={(el) => (cellRefs.current[col][row] = el)}
-                        // onKeyDown={(event) => keydown(event, col, row)}
+                        // onClick={event => setFocusedCell(toCellId(col, row))}
                     />
                     <div className="text" key={`${toCellId(col, row)}-text`}>
                         {'contents'}
