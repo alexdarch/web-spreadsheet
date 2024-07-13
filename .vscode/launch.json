@@ -11,7 +11,13 @@
             "url": "localhost:3000",
             "webRoot": "${workspaceFolder}/src",
             "port": 9222,
-            "trace": true
+            "trace": true,
+            "skipFiles": [
+                "${workspaceFolder}/node_modules/**/*.js",
+                "${workspaceFolder}/lib/**/*.js",
+                "${workspaceFolder}/node_modules/**/*.ts",
+                "${workspaceFolder}/lib/**/*.ts"
+            ]
         }
     ]
 }

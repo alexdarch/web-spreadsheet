@@ -80,7 +80,26 @@ export default function Spreadsheet() {
         const handleKeyDown = (event: KeyboardEvent) =>
             onKeyDown(event, numColumns, numRows, focusedCell, setFocusedCell)
         const handleMouseDown = (event: MouseEvent) => {
-            console.log('hi')
+            try {
+                const target = event.target as HTMLInputElement
+                if (!target) {
+                    console.log('Event target is null or undefined.')
+                    return
+                }
+                const cellId = target.getAttribute('id')
+                if (!cellId || cellId.substring(0, 1) != '#') {
+                    console.log('Cell ID attribute is missing.')
+                    return
+                }
+                setFocusedCell(cellId)
+            } catch (error: any) {
+                // Handle the error
+                console.error(
+                    'Error in handleMouseDown:',
+                    (error as Error).message
+                )
+                // You can choose to log, notify the user, or handle the error in another appropriate way
+            }
         }
         document.addEventListener('keydown', handleKeyDown)
         document.addEventListener('mousedown', handleMouseDown)
@@ -109,6 +128,7 @@ export default function Spreadsheet() {
                 <td className="cell" key={toCellId(col, row)}>
                     <input
                         key={`${toCellId(col, row)}-input`}
+                        id={`${toCellId(col, row)}`}
                         className="input"
                         onChange={(_) => {}}
                         ref={(el) => (cellRefs.current[col][row] = el)}
