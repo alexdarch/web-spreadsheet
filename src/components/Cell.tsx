@@ -24,10 +24,8 @@ export default forwardRef(function Cell(
 
     return (
         <td className="cell" key={`${toCellId(col, row)}-celldata`}>
-            <label htmlFor={`${toCellId(col, row)}-input`} />
             <input
                 key={`${toCellId(col, row)}-input`}
-                name={`${toCellId(col, row)}-input`}
                 id={`${toCellId(col, row)}`}
                 className="input"
                 onChange={(_) => {}}
