@@ -1,13 +1,13 @@
 import React from 'react'
 import '../styles/Components.css'
 
-export default function HeaderCell({
-    contents,
-}: {
+type HeaderCellProps = {
     contents: string
-}): JSX.Element {
+}
+
+export default function HeaderCell({ contents }: HeaderCellProps): JSX.Element {
     return (
-        <th key={crypto.randomUUID()} className="header-cell">
+        <th key={`${contents}-th`} className="header-cell">
             {contents}
         </th>
     )

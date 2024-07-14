@@ -33,11 +33,15 @@ export default function Spreadsheet() {
             column = String.fromCharCode(65 + remainder) + column
             index = Math.floor((index - 1) / 26)
         }
-        return <HeaderCell contents={column} />
+        return <HeaderCell key={column} contents={column} />
     })
     headerRow[0] = (
-        <td>
-            <button className="reset-button" onClick={() => alert('clicked')}>
+        <td key={'reset'}>
+            <button
+                key={'reset-button'}
+                className="reset-button"
+                onClick={() => alert('clicked')}
+            >
                 ↻
             </button>
         </td>
@@ -60,26 +64,19 @@ export default function Spreadsheet() {
     function createRow(row: number): JSX.Element[] {
         return Array.from(Array(numColumns - 1).keys()).map((col) => {
             return (
-                <td className="cell" key={toCellId(col, row)}>
-                    <input
-                        key={`${toCellId(col, row)}-input`}
-                        id={`${toCellId(col, row)}`}
-                        className="input"
-                        onChange={(_) => {}}
-                        ref={(el) => setCellRef(el, col, row)}
-                        // onClick={event => setFocusedCell(toCellId(col, row))}
-                    />
-                    <div className="text" key={`${toCellId(col, row)}-text`}>
-                        {'contents'}
-                    </div>
-                </td>
+                <Cell
+                    key={`${toCellId(col, row)}-cell`}
+                    row={row}
+                    col={col}
+                    setCellRef={setCellRef}
+                />
             )
         })
     }
 
     return (
         <table className="table">
-            <tbody>
+            <tbody key={'body'}>
                 <tr key={'header-row'}>{headerRow}</tr>
                 {Array.from(Array(numRows - 1).keys()).map((rowNum) => (
                     <tr key={rowNum}>
