@@ -1,54 +1,30 @@
 import React, { useState, useRef, useEffect, ReactElement } from 'react'
 import HeaderCell from './HeaderCell'
-import { fromCellId, toCellId, onKeyDown } from '../helpers/helpers'
+import { toCellId } from '../helpers/helpers'
+import { onKeyDown, onMouseDown } from '../helpers/eventHelpers'
 import Cell from './Cell'
 import '../styles/Components.css'
-
-// function useCellRefs(numColumns: number, numRows: number): any {
-//     const cellRefs = useRef<any>(null);
-
-//     // Initialize cellRefs array with refs for each cell
-//     useEffect(() => {
-//         cellRefs.current = Array(numRows).map((_) => {
-//             return Array(numColumns).map((_) => useRef(null))
-//         })
-//     }, [numColumns, numRows]);
-
-//     return cellRefs.current;
-//   };
+import useCellsRef from '../hooks/useCellsRef'
 
 export default function Spreadsheet() {
     const numColumns = 30
     const numRows = 15
 
-    const [focusedCell, setFocusedCell] = useState<string | undefined>(
-        undefined
+    const [setCellRef, focusedCell, setFocusedCell] = useCellsRef(
+        undefined,
+        numColumns,
+        numRows
     )
 
-    // https://stackoverflow.com/questions/54633690/how-can-i-use-multiple-refs-for-an-array-of-elements-with-hooks
-    // https://stackoverflow.com/questions/66664209/how-can-i-use-forwardref-in-react
-    const cellRefs = useRef<(HTMLInputElement | null)[][]>(
-        Array(numColumns)
-            .fill(null)
-            .map(() => Array(numRows).fill(null))
-    )
-    useEffect(() => {
-        cellRefs.current = cellRefs.current
-            .slice(0, numColumns)
-            .map(
-                (row) => row?.slice(0, numRows) ?? Array(numColumns).fill(null)
-            )
-    }, [numColumns, numRows])
-
-    const [values, setValues] = useState(
-        Array<string>(numColumns).map((_) => Array<string>(numRows))
-    )
-    const [expressions, setExpressions] = useState(
-        Array<string>(numColumns).map((_) => Array<string>(numRows))
-    )
-    const [errors, setErrors] = useState(
-        Array<string>(numColumns).map((_) => Array<string>(numRows))
-    )
+    // const [values, setValues] = useState(
+    //     Array<string>(numColumns).map((_) => Array<string>(numRows))
+    // )
+    // const [expressions, setExpressions] = useState(
+    //     Array<string>(numColumns).map((_) => Array<string>(numRows))
+    // )
+    // const [errors, setErrors] = useState(
+    //     Array<string>(numColumns).map((_) => Array<string>(numRows))
+    // )
 
     const headerRow = Array.from(Array(numColumns).keys()).map((index) => {
         let column = ''
@@ -67,40 +43,11 @@ export default function Spreadsheet() {
         </td>
     )
 
-    // function updateFocusedCell(cell: { col: number; row: number } | undefined): void {
-    //     // get HTML element
-    //     window.
-    //     let element = getDomElement();
-
-    //     element.focus();
-    //     setFocusedElement()
-    // }
-
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) =>
             onKeyDown(event, numColumns, numRows, focusedCell, setFocusedCell)
-        const handleMouseDown = (event: MouseEvent) => {
-            try {
-                const target = event.target as HTMLInputElement
-                if (!target) {
-                    console.log('Event target is null or undefined.')
-                    return
-                }
-                const cellId = target.getAttribute('id')
-                if (!cellId || cellId.substring(0, 1) != '#') {
-                    console.log('Cell ID attribute is missing.')
-                    return
-                }
-                setFocusedCell(cellId)
-            } catch (error: any) {
-                // Handle the error
-                console.error(
-                    'Error in handleMouseDown:',
-                    (error as Error).message
-                )
-                // You can choose to log, notify the user, or handle the error in another appropriate way
-            }
-        }
+        const handleMouseDown = (event: MouseEvent) =>
+            onMouseDown(event, setFocusedCell)
         document.addEventListener('keydown', handleKeyDown)
         document.addEventListener('mousedown', handleMouseDown)
         // unmount event listener when component is unmounted
@@ -109,18 +56,6 @@ export default function Spreadsheet() {
             document.removeEventListener('mousedown', handleMouseDown)
         }
     }, [numColumns, numRows, focusedCell])
-
-    useEffect(() => {
-        if (focusedCell === undefined) return
-
-        console.log(focusedCell)
-        console.log(cellRefs.current)
-
-        let { col, row } = fromCellId(focusedCell)
-        if (cellRefs?.current[col] && cellRefs.current[col][row]) {
-            cellRefs.current[col][row]?.focus()
-        }
-    }, [focusedCell])
 
     function createRow(row: number): JSX.Element[] {
         return Array.from(Array(numColumns - 1).keys()).map((col) => {
@@ -131,7 +66,7 @@ export default function Spreadsheet() {
                         id={`${toCellId(col, row)}`}
                         className="input"
                         onChange={(_) => {}}
-                        ref={(el) => (cellRefs.current[col][row] = el)}
+                        ref={(el) => setCellRef(el, col, row)}
                         // onClick={event => setFocusedCell(toCellId(col, row))}
                     />
                     <div className="text" key={`${toCellId(col, row)}-text`}>
@@ -148,7 +83,10 @@ export default function Spreadsheet() {
                 <tr key={'header-row'}>{headerRow}</tr>
                 {Array.from(Array(numRows - 1).keys()).map((rowNum) => (
                     <tr key={rowNum}>
-                        <HeaderCell contents={(rowNum + 1).toString()} />
+                        <HeaderCell
+                            key={toCellId(0, rowNum)}
+                            contents={(rowNum + 1).toString()}
+                        />
                         {createRow(rowNum)}
                     </tr>
                 ))}

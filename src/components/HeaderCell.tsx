@@ -6,5 +6,9 @@ export default function HeaderCell({
 }: {
     contents: string
 }): JSX.Element {
-    return <th className="header-cell">{contents}</th>
+    return (
+        <th key={crypto.randomUUID()} className="header-cell">
+            {contents}
+        </th>
+    )
 }
