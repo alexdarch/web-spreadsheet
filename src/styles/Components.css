@@ -4,21 +4,56 @@
 
 .cell {
     border: 1px solid #ccc;
-    /* position: absolute; */
-    /* padding: 1px; */
+    height: 10px;
 }
 
 .header-cell {
     background-color: #ddd;
     border: 1px solid #ccc;
+    width: 120px;
+    height: 10px;
 }
 
-/* td.formula { background: #eef; }
-td div { text-align: right; width: 120px; min-height: 1.2em;
-         overflow: hidden; text-overflow: ellipsis; }
-div.text { text-align: left; }
-div.error { text-align: center; color: #800; font-size: 90%; border: solid 1px #800 }
-input { position: absolute; border: 0; padding: 0; width: 120px; height: 1.3em;
-        font-size: 100%; color: transparent; background: transparent; }
-input:focus { color: #111; background: #efe; }
-input:focus + div { white-space: nowrap; } */
+/* descendant selector: any div that is a descendant of td */
+td div {
+    text-align: right;
+    width: 120px;
+    min-height: 1.2em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Class selector: any div with a class of text */
+div.text {
+    text-align: left;
+}
+
+div.error {
+    text-align: center;
+    color: #800;
+    font-size: 90%;
+    border: solid 1px #800;
+}
+
+/* Class selector: any element with a class of input */
+.input {
+    position: absolute;
+    border: 0;
+    padding: 0;
+    width: 120px;
+    height: 1.3em;
+    font-size: 100%;
+    color: transparent;
+    background: transparent;
+}
+
+/* Pseudo-class selector: any input element currently in focus */
+input:focus {
+    color: #111;
+    background: #efe;
+}
+
+/* Adjacent Sibling Selector: Any div that immediately follows an input that is currently in focus*/
+input:focus + div {
+    white-space: nowrap;
+}
