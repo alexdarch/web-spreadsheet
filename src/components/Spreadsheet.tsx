@@ -5,6 +5,8 @@ import { onKeyDown, onMouseDown } from '../helpers/eventHelpers'
 import Cell from './Cell'
 import '../styles/Components.css'
 import useCellsRef from '../hooks/useCellsRef'
+import cellCalculationWorker from '../webworker/cellCalculationWorker'
+import createWorker from '../webworker/createWorker'
 
 export default function Spreadsheet() {
     const numColumns = 30
@@ -15,6 +17,34 @@ export default function Spreadsheet() {
         numColumns,
         numRows
     )
+
+    const [result, setResult] = useState<any>(0)
+    const [worker, setWorker] = useState<any>(null)
+
+    useEffect(() => {
+        const workerProcess = createWorker(cellCalculationWorker)
+
+        workerProcess.onmessage = function (event) {
+            console.log('Received result from worker: ', event.data)
+            setResult(event.data)
+        }
+
+        setWorker(workerProcess)
+
+        return () => {
+            workerProcess.terminate()
+        }
+    }, [])
+
+    useEffect(() => {
+        const randNum = Math.random()
+        console.log('Generated random number: ', randNum)
+        worker.postMessage(randNum)
+    }, [focusedCell])
+
+    useEffect(() => {
+        console.log('Received result!: ', result)
+    }, [result])
 
     // const [values, setValues] = useState(
     //     Array<string>(numColumns).map((_) => Array<string>(numRows))
@@ -54,7 +84,6 @@ export default function Spreadsheet() {
             onMouseDown(event, setFocusedCell)
         document.addEventListener('keydown', handleKeyDown)
         document.addEventListener('mousedown', handleMouseDown)
-        // unmount event listener when component is unmounted
         return () => {
             document.removeEventListener('keydown', handleKeyDown)
             document.removeEventListener('mousedown', handleMouseDown)
@@ -90,18 +119,4 @@ export default function Spreadsheet() {
             </tbody>
         </table>
     )
-
-    // <Cell
-    //     col={colNum}
-    //     row={rowNum}
-    //     ref={cellRefs.current[colNum][rowNum]}
-    //     values={values}
-    //     setValues={setValues}
-    //     expressions={expressions}
-    //     setExpressions={setExpressions}
-    //     errors={errors}
-    //     setErrors={setErrors}
-    //     // keydown={(a, b, c) => alert('keydown')}
-    //     // calc={() => alert('calc')}
-    // />
 }

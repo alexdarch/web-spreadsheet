@@ -16,3 +16,14 @@ You will also see any lint errors in the console.
 
 Note you must run this from a windows cmd prompt!
 Attach the debugger by running the vscode debugger
+
+## Conventions
+
+-   Top-level folders are `camelCase` or `smalllowercase` or `kebab-case`?
+-   Sub folders in components are `TitleCase`
+-   .tsx files are `TitleCase` and match the component name
+-   plain js/ts files are `camelCase`
+-   Sub folders in not-components are `camelCase` or `smalllowercase` or `kebab-case`?
+
+See the react.dev source code https://github.com/reactjs/react.dev/tree/main
+and the AirBnB style guide https://github.com/airbnb/javascript/tree/master/react#naming
