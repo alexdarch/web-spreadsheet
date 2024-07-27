@@ -6,7 +6,7 @@ import Cell from './Cell'
 import '../styles/Components.css'
 import useCellsRef from '../hooks/useCellsRef'
 import useWorker from '../hooks/useWorker'
-import cellCalculationWorker from '../webworker/cellCalculationWorker'
+import cellCalculationWorker from '../workers/cellCalculationWorker'
 
 export default function Spreadsheet() {
     const numColumns = 30
