@@ -5,8 +5,8 @@ import { onKeyDown, onMouseDown } from '../helpers/eventHelpers'
 import Cell from './Cell'
 import '../styles/Components.css'
 import useCellsRef from '../hooks/useCellsRef'
+import useWorker from '../hooks/useWorker'
 import cellCalculationWorker from '../webworker/cellCalculationWorker'
-import createWorker from '../webworker/createWorker'
 
 export default function Spreadsheet() {
     const numColumns = 30
@@ -18,29 +18,15 @@ export default function Spreadsheet() {
         numRows
     )
 
-    const [result, setResult] = useState<any>(0)
-    const [worker, setWorker] = useState<any>(null)
+    const [result, setResult, worker] = useWorker(() => cellCalculationWorker)
 
     useEffect(() => {
-        const workerProcess = createWorker(cellCalculationWorker)
-
-        workerProcess.onmessage = function (event) {
-            console.log('Received result from worker: ', event.data)
-            setResult(event.data)
+        if (worker) {
+            const randNum = Math.random()
+            console.log('Generated random number: ', randNum)
+            worker.postMessage(randNum)
         }
-
-        setWorker(workerProcess)
-
-        return () => {
-            workerProcess.terminate()
-        }
-    }, [])
-
-    useEffect(() => {
-        const randNum = Math.random()
-        console.log('Generated random number: ', randNum)
-        worker.postMessage(randNum)
-    }, [focusedCell])
+    }, [focusedCell, worker])
 
     useEffect(() => {
         console.log('Received result!: ', result)
