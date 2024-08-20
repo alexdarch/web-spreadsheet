@@ -21,20 +21,45 @@ export default function Spreadsheet() {
     const [result, setResult, worker] = useWorker(() => cellCalculationWorker)
 
     useEffect(() => {
-        if (worker) {
-            const randNum = Math.random()
-            console.log('Generated random number: ', randNum)
-            worker.postMessage(randNum)
+        if (!worker) {
+            return
         }
+
+        const randNum = Math.random()
+        console.log('Generated random number: ', randNum)
+        worker.postMessage(randNum)
+        
     }, [focusedCell, worker])
+
+    useEffect(() => {
+        if (!worker) {
+            return
+        }
+
+        const sheetString = localStorage.getItem('sheet')
+        if (sheet !== null) {
+            const sheet = JSON.parse(sheetString!)
+            reset()
+        }        
+    }, [])
 
     useEffect(() => {
         console.log('Received result!: ', result)
     }, [result])
 
-    // const [values, setValues] = useState(
-    //     Array<string>(numColumns).map((_) => Array<string>(numRows))
-    // )
+    const [sheet, setSheet] = useState(new Map<string, string | number>([]))
+
+    function reset() {
+        const initSheet = new Map<string, string | number>([
+            ['B1', 1874],
+            ['A2', '+'],
+            ['B2', 2046],
+            ['A3', '⇒'],
+            ['B3', '=B1+B2'],
+        ])
+        setSheet(initSheet)
+    }
+
     // const [expressions, setExpressions] = useState(
     //     Array<string>(numColumns).map((_) => Array<string>(numRows))
     // )
