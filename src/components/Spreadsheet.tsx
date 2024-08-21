@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, ReactElement } from 'react'
 import HeaderCell from './HeaderCell'
-import { toCellId } from '../helpers/helpers'
+import { toCellName, toColName } from '../helpers/helpers'
 import { onKeyDown, onMouseDown } from '../helpers/eventHelpers'
 import Cell from './Cell'
 import '../styles/Components.css'
@@ -20,6 +20,8 @@ export default function Spreadsheet() {
 
     const [result, setResult, worker] = useWorker(() => cellCalculationWorker)
 
+    // TODO: ignore workers and just allow typing of strings and numbers
+    // Then if number is negative then show error message.
     useEffect(() => {
         if (!worker) {
             return
@@ -28,7 +30,6 @@ export default function Spreadsheet() {
         const randNum = Math.random()
         console.log('Generated random number: ', randNum)
         worker.postMessage(randNum)
-        
     }, [focusedCell, worker])
 
     useEffect(() => {
@@ -40,7 +41,7 @@ export default function Spreadsheet() {
         if (sheet !== null) {
             const sheet = JSON.parse(sheetString!)
             reset()
-        }        
+        }
     }, [])
 
     useEffect(() => {
@@ -68,12 +69,7 @@ export default function Spreadsheet() {
     // )
 
     const headerRow = Array.from(Array(numColumns).keys()).map((index) => {
-        let column = ''
-        while (index > 0) {
-            let remainder = (index - 1) % 26
-            column = String.fromCharCode(65 + remainder) + column
-            index = Math.floor((index - 1) / 26)
-        }
+        const column = toColName(index)
         return <HeaderCell key={column} contents={column} />
     })
     headerRow[0] = (
@@ -105,10 +101,12 @@ export default function Spreadsheet() {
         return Array.from(Array(numColumns - 1).keys()).map((col) => {
             return (
                 <Cell
-                    key={`${toCellId(col, row)}-cell`}
+                    key={`${toCellName(col, row)}-cell`}
                     row={row}
                     col={col}
                     setCellRef={setCellRef}
+                    sheet={sheet}
+                    setSheet={setSheet}
                 />
             )
         })
@@ -121,7 +119,7 @@ export default function Spreadsheet() {
                 {Array.from(Array(numRows - 1).keys()).map((rowNum) => (
                     <tr key={rowNum}>
                         <HeaderCell
-                            key={toCellId(0, rowNum)}
+                            key={toCellName(0, rowNum)}
                             contents={(rowNum + 1).toString()}
                         />
                         {createRow(rowNum)}

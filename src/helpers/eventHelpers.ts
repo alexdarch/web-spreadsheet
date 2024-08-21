@@ -1,4 +1,4 @@
-import { fromCellId, toCellId } from './helpers'
+import { fromCellName, toCellName } from './helpers'
 
 export function onKeyDown(
     event: KeyboardEvent, //React.KeyboardEvent<HTMLInputElement
@@ -9,31 +9,28 @@ export function onKeyDown(
 ): void {
     if (focusedCell === undefined) return
 
-    var { col, row } = fromCellId(focusedCell)
+    var { col, row } = fromCellName(focusedCell)
     let cell = ''
 
     switch (event.key) {
-        case 'Enter':
-            alert('Enter')
-            break
         case 'ArrowLeft':
-            cell = toCellId(Math.max(col - 1, 0), row)
+            cell = toCellName(Math.max(col - 1, 0), row)
             setFocusedCell(cell)
             break
         case 'ArrowRight':
-            cell = toCellId(Math.min(col + 1, numColumns), row)
+            cell = toCellName(Math.min(col + 1, numColumns), row)
             setFocusedCell(cell)
             break
         case 'ArrowUp':
-            cell = toCellId(col, Math.max(row - 1, 0))
+            cell = toCellName(col, Math.max(row - 1, 0))
             setFocusedCell(cell)
             break
         case 'ArrowDown':
-            cell = toCellId(col, Math.min(row + 1, numRows))
+        case 'Enter':
+            cell = toCellName(col, Math.min(row + 1, numRows))
             setFocusedCell(cell)
             break
         default:
-            alert('bad key')
             break
     }
 }
@@ -49,7 +46,7 @@ export function onMouseDown(
             return
         }
         const cellId = target.getAttribute('id')
-        if (!cellId || cellId.substring(0, 1) != '#') {
+        if (!cellId) {
             console.log('Cell ID attribute is missing.')
             return
         }
