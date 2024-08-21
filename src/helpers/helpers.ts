@@ -1,4 +1,8 @@
 export function toColName(index: number): string {
+    if (index <= 0) {
+        return '?'
+    }
+
     let column = ''
     while (index > 0) {
         let remainder = (index - 1) % 26

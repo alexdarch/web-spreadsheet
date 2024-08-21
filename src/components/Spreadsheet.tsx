@@ -19,9 +19,8 @@ export default function Spreadsheet() {
     )
 
     const [result, setResult, worker] = useWorker(() => cellCalculationWorker)
+    const [sheet, setSheet] = useState(new Map<string, string | number>([]))
 
-    // TODO: ignore workers and just allow typing of strings and numbers
-    // Then if number is negative then show error message.
     useEffect(() => {
         if (!worker) {
             return
@@ -40,15 +39,14 @@ export default function Spreadsheet() {
         const sheetString = localStorage.getItem('sheet')
         if (sheet !== null) {
             const sheet = JSON.parse(sheetString!)
+        } else {
             reset()
         }
-    }, [])
+    }, [worker])
 
     useEffect(() => {
         console.log('Received result!: ', result)
     }, [result])
-
-    const [sheet, setSheet] = useState(new Map<string, string | number>([]))
 
     function reset() {
         const initSheet = new Map<string, string | number>([
@@ -97,16 +95,30 @@ export default function Spreadsheet() {
         }
     }, [numColumns, numRows, focusedCell])
 
+    // TODO: Move errors into their own use-state like sheet
+    // Then call the worker on the sheet and update the errors and sheet
+    // At first just return this fixed list of errors
+    // TODO: ignore workers and just allow typing of strings and numbers
+    // Then if number is negative then show error message?
+    // TODO:
+    const errors = new Map<string, string | number>([
+        ['B1', 1874],
+        ['A2', '+'],
+        ['B2', 2046],
+        ['A3', '⇒'],
+        ['B3', '=B1+B2'],
+    ])
     function createRow(row: number): JSX.Element[] {
         return Array.from(Array(numColumns - 1).keys()).map((col) => {
             return (
                 <Cell
                     key={`${toCellName(col, row)}-cell`}
-                    row={row}
-                    col={col}
+                    row={row + 1}
+                    col={col + 1}
                     setCellRef={setCellRef}
                     sheet={sheet}
                     setSheet={setSheet}
+                    error={errors.get(toCellName(col, row))}
                 />
             )
         })

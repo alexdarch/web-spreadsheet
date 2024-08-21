@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, forwardRef } from 'react'
+import { useState, useEffect, forwardRef } from 'react'
 import '../styles/Components.css'
 import '../types/types.d.ts'
 import { toCellName } from '../helpers/helpers'
@@ -10,20 +10,17 @@ type CellProps = {
     setCellRef: (el: HTMLInputElement | null, col: number, row: number) => void
     sheet: Map<string, string | number>
     setSheet: (values: Map<string, string | number>) => void
-    // expressions: string[][]
-    // setExpressions: (values: string[][]) => void
-    // errors: string[][]
-    // setErrors: (values: string[][]) => void
+    error: string | number | undefined
 }
 
 export default forwardRef(function Cell(
-    { col, row, setCellRef, sheet, setSheet }: CellProps,
+    { col, row, setCellRef, sheet, setSheet, error }: CellProps,
     ref: React.ForwardedRef<HTMLInputElement>
 ): JSX.Element {
     // Use a local useState here otherwise there is a weird lag
-    const [value, setValue] = useState(sheet.get(toCellName(col, row)))
-
     const cellName = toCellName(col, row)
+
+    const [value, setValue] = useState(error || sheet.get(cellName) || '')
 
     function onChangeHandler(e: React.FormEvent<HTMLInputElement>) {
         const val = e.currentTarget.value
@@ -40,6 +37,8 @@ export default forwardRef(function Cell(
 
     // Note that the cell is focused by functions in the Spreadsheet component
     // As we need to be able to deal with arrow keys to move focus around
+    // Note that the input value={value || ''} but div contents = {error || value || ''}
+    // This is because when editing we dont want to edit the error, only what caused the error
     return (
         <td className="cell" key={`${toCellName(col, row)}-celldata`}>
             <input
@@ -49,9 +48,10 @@ export default forwardRef(function Cell(
                 onChange={onChangeHandler}
                 onBlur={onBlurHandler}
                 ref={(el) => setCellRef(el, col, row)}
+                value={value || ''}
             />
             <div className="text" key={`${toCellName(col, row)}-text`}>
-                {value}
+                {error || value || ''}
             </div>
         </td>
     )
