@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { fromCellName } from '../helpers/helpers'
+import { fromCellName } from '../helpers/cellHelpers'
 
 export default function useCellsRef(
     initialCell: string | undefined,

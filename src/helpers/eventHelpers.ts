@@ -1,15 +1,15 @@
-import { fromCellName, toCellName } from './helpers'
+import { fromCellName, toCellName } from './cellHelpers'
 
 export function onKeyDown(
     event: KeyboardEvent, //React.KeyboardEvent<HTMLInputElement
     numColumns: number,
     numRows: number,
-    focusedCell: string | undefined,
+    intialFocusedCell: string | undefined,
     setFocusedCell: (cell: string | undefined) => void
 ): void {
-    if (focusedCell === undefined) return
+    if (intialFocusedCell === undefined) return
 
-    var { col, row } = fromCellName(focusedCell)
+    var { col, row } = fromCellName(intialFocusedCell)
     let cell = ''
 
     switch (event.key) {
@@ -32,6 +32,9 @@ export function onKeyDown(
             break
         default:
             break
+    }
+
+    if (intialFocusedCell !== cell) {
     }
 }
 

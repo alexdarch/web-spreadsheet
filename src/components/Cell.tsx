@@ -2,15 +2,16 @@ import React from 'react'
 import { useState, useEffect, forwardRef } from 'react'
 import '../styles/Components.css'
 import '../types/types.d.ts'
-import { toCellName } from '../helpers/helpers'
+import { toCellName } from '../helpers/cellHelpers'
+import { SheetTypes } from '../types/types'
 
 type CellProps = {
     col: number
     row: number
     setCellRef: (el: HTMLInputElement | null, col: number, row: number) => void
-    sheet: Map<string, string | number>
-    setSheet: (values: Map<string, string | number>) => void
-    error: string | number | undefined
+    sheet: Map<string, SheetTypes>
+    setSheet: (values: Map<string, SheetTypes>) => void
+    error: SheetTypes
 }
 
 export default forwardRef(function Cell(
