@@ -18,7 +18,6 @@ export default function Spreadsheet() {
         numRows
     )
 
-    // const [sheet, setSheet, errors, setErrors, worker] = useWorker<SheetTypes>(() => cellCalculationWorker)
     const [worker, setWorker] = useState<Worker | null>(null)
     const [sheet, setSheet] = useState(new Map<string, SheetTypes>([]))
     const [errors, setErrors] = useState(new Map<string, SheetTypes>([]))
@@ -47,10 +46,6 @@ export default function Spreadsheet() {
         // TODO: call the calc when we run F9 or press enter on a particular cell.
         // Start with a particular cell, proxied by focusedCell for now
     }, [focusedCell, sheet])
-
-    // useEffect(() => {
-    //     console.log('Received result!: ', sheet)
-    // }, [sheet])
 
     const headerRow = Array.from(Array(numColumns).keys()).map((index) => {
         const column = toColName(index)
@@ -96,8 +91,8 @@ export default function Spreadsheet() {
                     setCellRef={setCellRef}
                     sheet={sheet}
                     setSheet={setSheet}
-                    error={errors?.get(toCellName(col, row)) ?? ''}
-                    value={values?.get(toCellName(col, row)) ?? ''}
+                    error={errors.get(toCellName(col, row))}
+                    value={values.get(toCellName(col, row))}
                 />
             )
         })

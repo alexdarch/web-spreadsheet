@@ -21,11 +21,11 @@ export default forwardRef(function Cell(
 ): JSX.Element {
     // Use a local useState here otherwise there is a weird lag
     const cellName = toCellName(col, row)
-    // console.log("CELL", sheet)
-    const firstValue = sheet?.get(cellName) ?? ''
+    const [colour, setColour] = useState('black')
+    const firstValue = sheet.get(cellName) ?? ''
 
     const [editableValue, setEditableValue] = useState(
-        sheet?.get(cellName) ?? ''
+        sheet.get(cellName) ?? ''
     )
 
     function onChangeHandler(e: React.FormEvent<HTMLInputElement>) {
@@ -36,19 +36,23 @@ export default forwardRef(function Cell(
     function onBlurHandler(e: React.FormEvent<HTMLInputElement>) {
         const val = e.currentTarget.value
 
-        // TODO: why is this necessary?
-        if (!sheet) {
-            return
-        }
         if (!editableValue || editableValue === '') {
-            sheet?.delete(cellName)
+            sheet.delete(cellName)
         } else if (firstValue === editableValue) {
             return
         } else {
-            sheet?.set(cellName, val)
+            sheet.set(cellName, val)
         }
         setSheet(sheet)
     }
+
+    useEffect(() => {
+        if (error) {
+            setColour('red')
+        } else {
+            setColour('black')
+        }
+    }, [error])
 
     // Note that the cell is focused by functions in the Spreadsheet component
     // As we need to be able to deal with arrow keys to move focus around
@@ -65,7 +69,11 @@ export default forwardRef(function Cell(
                 ref={(el) => setCellRef(el, col, row)}
                 value={editableValue || ''}
             />
-            <div className="text" key={`${toCellName(col, row)}-text`}>
+            <div
+                className="text"
+                key={`${toCellName(col, row)}-text`}
+                style={{ color: colour }}
+            >
                 {value || error || editableValue || ''}
             </div>
         </td>
