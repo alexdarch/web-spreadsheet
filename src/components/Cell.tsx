@@ -12,27 +12,41 @@ type CellProps = {
     sheet: Map<string, SheetTypes>
     setSheet: (values: Map<string, SheetTypes>) => void
     error: SheetTypes
+    value: SheetTypes
 }
 
 export default forwardRef(function Cell(
-    { col, row, setCellRef, sheet, setSheet, error }: CellProps,
+    { col, row, setCellRef, sheet, setSheet, error, value }: CellProps,
     ref: React.ForwardedRef<HTMLInputElement>
 ): JSX.Element {
     // Use a local useState here otherwise there is a weird lag
     const cellName = toCellName(col, row)
+    // console.log("CELL", sheet)
+    const firstValue = sheet?.get(cellName) ?? ''
 
-    const [value, setValue] = useState(error || sheet.get(cellName) || '')
+    const [editableValue, setEditableValue] = useState(
+        sheet?.get(cellName) ?? ''
+    )
 
     function onChangeHandler(e: React.FormEvent<HTMLInputElement>) {
         const val = e.currentTarget.value
-        setValue(val)
-        sheet.set(cellName, val)
-        setSheet(sheet)
+        setEditableValue(val)
     }
 
     function onBlurHandler(e: React.FormEvent<HTMLInputElement>) {
         const val = e.currentTarget.value
-        sheet.set(cellName, val)
+
+        // TODO: why is this necessary?
+        if (!sheet) {
+            return
+        }
+        if (!editableValue || editableValue === '') {
+            sheet?.delete(cellName)
+        } else if (firstValue === editableValue) {
+            return
+        } else {
+            sheet?.set(cellName, val)
+        }
         setSheet(sheet)
     }
 
@@ -49,10 +63,10 @@ export default forwardRef(function Cell(
                 onChange={onChangeHandler}
                 onBlur={onBlurHandler}
                 ref={(el) => setCellRef(el, col, row)}
-                value={value || ''}
+                value={editableValue || ''}
             />
             <div className="text" key={`${toCellName(col, row)}-text`}>
-                {error || value || ''}
+                {value || error || editableValue || ''}
             </div>
         </td>
     )

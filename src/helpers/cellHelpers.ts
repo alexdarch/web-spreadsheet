@@ -34,7 +34,7 @@ export function fromCellName(name: string): { col: number; row: number } {
     let factor = 1
     const colSplit = col.toLowerCase().split('')
     for (let i = colSplit.length - 1; i >= 0; i--) {
-        console.log(colSplit[i], colSplit[i].charCodeAt(0) - 97 + 1, factor)
+        // console.log(colSplit[i], colSplit[i].charCodeAt(0) - 97 + 1, factor)
         colNum += (colSplit[i].charCodeAt(0) - 97 + 1) * factor
         factor *= 26
     }

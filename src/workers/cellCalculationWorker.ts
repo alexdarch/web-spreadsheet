@@ -8,10 +8,13 @@ export default (): void => {
     // 3. Prevent cyclic references (Hard - fix this later)
     //       Done via getter and setter functions in the global scope?
 
-    function calculateFormulas(sheet: Map<string, string>): { errors: Map<string, string>, values: Map<string, string> }
+    type StringDict = { [key: string]: string }
+
+    function calculateFormulas(sheet: StringDict): { errors: StringDict , values: StringDict }
     {
-        let errors: Map<string, string> = new Map([]);
-        let values: Map<string, string> = new Map([]);
+        console.log("Calculate Formulas")
+        let errors: StringDict = { "A1": "error" };
+        let values: StringDict = {"A2": "value"};
 
         for (const coord in sheet)
         {
@@ -24,8 +27,10 @@ export default (): void => {
 
     self.addEventListener('message', (event) => {  // eslint-disable-line no-restricted-globals
         console.log(`Received message from main thread: ${event.data}`)
-        const result = calculateFormulas(event.data)
-        postMessage(result)
+        
+        const parsedMessage = JSON.parse(event.data)
+        const result = calculateFormulas(parsedMessage)
+        postMessage(JSON.stringify(result))
     })
 }
 
