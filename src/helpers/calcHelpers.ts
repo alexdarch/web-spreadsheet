@@ -27,55 +27,33 @@ export function calc(
     console.log('calc worker', worker, 'sheet', sheet)
     var json = JSON.stringify(Object.fromEntries(new Map(sheet)))
 
-    worker.postMessage(json)
-}
+    var promise = setTimeout(() => {
+        console.log('timeout')
+        // If the worker has not returned in 499 milliseconds, terminate it
+        worker.terminate()
+        // Back up to the previous state and make a new worker
+        init(setWorker, sheet, setSheet, values, setValues, errors, setErrors)
+        // Redo the calculation using the last-known state
+        calc(
+            worker,
+            setWorker,
+            sheet,
+            setSheet,
+            errors,
+            setErrors,
+            values,
+            setValues
+        )
+    }, 1099)
 
-// var promise = setTimeout(() => {
+    // When the worker returns, apply its effect on the scope
+    worker.onmessage = function (event) {
+        clearTimeout(promise)
 
-//     console.log("timeout")
-//     // If the worker has not returned in 499 milliseconds, terminate it
-//     worker.terminate()
-//     // Back up to the previous state and make a new worker
-//     init(setSheet, setErrors, setWorker)
-//     // Redo the calculation using the last-known state
-//     calc(worker, setWorker, sheet, setSheet, errors, setErrors, values, setValues)
-// }, 1099)
+        // If we successfully receive a message then save the current sheet as a backup
+        const currSheet = Object.entries(sheet)
+        localStorage.setItem('', JSON.stringify(currSheet))
 
-// When the worker returns, apply its effect on the scope
-// worker.onmessage = function (message) {
-//     clearTimeout(promise)
-//     localStorage.setItem('', json)
-//     setTimeout(() => {
-//         setErrors(message.data[0])
-//         setValues(message.data[1])
-//     })
-// }
-
-// Post the current sheet content for the worker to process
-export function init(
-    setSheet: (sheet: Map<string, SheetTypes>) => void,
-    setValues: (sheet: Map<string, SheetTypes>) => void,
-    setErrors: (errors: Map<string, SheetTypes>) => void,
-    setWorker: (worker: Worker) => void
-) {
-    const lastSheet = localStorage.getItem('')!
-    let sheet = JSON.parse(lastSheet)
-    if (!sheet) {
-        reset(setSheet, setErrors)
-    }
-    initWorker(new Map([]), setValues, new Map([]), setErrors, setWorker)
-}
-
-function initWorker(
-    values: Map<string, SheetTypes>,
-    setValues: (sheet: Map<string, SheetTypes>) => void,
-    errors: Map<string, SheetTypes>,
-    setErrors: (errors: Map<string, SheetTypes>) => void,
-    setWorker: (worker: Worker) => void
-) {
-    console.log('creating worker')
-    const workerProcess = createWorker(cellCalculationWorker)
-    workerProcess.onmessage = function (event) {
         const result = JSON.parse(event.data)
 
         const newValues = new Map(Object.entries<string>(result.values))
@@ -92,7 +70,40 @@ function initWorker(
         }
     }
 
+    worker.postMessage(json)
+}
+
+export function init(
+    setWorker: (worker: Worker) => void,
+    sheet: Map<string, SheetTypes>,
+    setSheet: (newSheet: Map<string, SheetTypes>) => void,
+    values: Map<string, SheetTypes>,
+    setValues: (newValues: Map<string, SheetTypes>) => void,
+    errors: Map<string, SheetTypes>,
+    setErrors: (newErrors: Map<string, SheetTypes>) => void
+) {
+    const lastSheet = localStorage.getItem('')!
+    let result = JSON.parse(lastSheet)
+
+    if (!result) {
+        // If no previous local storage then reset the sheet and run the calcs for it
+        reset(setSheet)
+    }
+
+    console.log('creating worker')
+    const workerProcess = createWorker(cellCalculationWorker)
     setWorker(workerProcess)
+
+    calc(
+        workerProcess,
+        setWorker,
+        sheet,
+        setSheet,
+        errors,
+        setErrors,
+        values,
+        setValues
+    )
 }
 
 function createWorker(worker: () => any) {
@@ -106,10 +117,7 @@ function createWorker(worker: () => any) {
     return new Worker(URL.createObjectURL(blob))
 }
 
-export function reset(
-    setSheet: (newSheet: Map<string, SheetTypes>) => void,
-    setErrors: (newErrors: Map<string, SheetTypes>) => void
-) {
+export function reset(setSheet: (newSheet: Map<string, SheetTypes>) => void) {
     console.log('Resetting...')
     const initSheet = new Map<string, SheetTypes>([
         ['B1', 1874],
@@ -122,5 +130,4 @@ export function reset(
     var json = JSON.stringify(initSheet)
     localStorage.setItem('', json)
     setSheet(initSheet)
-    setErrors(new Map<string, SheetTypes>([]))
 }

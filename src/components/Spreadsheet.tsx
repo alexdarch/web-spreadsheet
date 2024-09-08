@@ -24,7 +24,7 @@ export default function Spreadsheet() {
     const [values, setValues] = useState(new Map<string, SheetTypes>([]))
 
     useEffect(() => {
-        init(setSheet, setValues, setErrors, setWorker)
+        init(setWorker, sheet, setSheet, errors, setErrors, values, setValues)
     }, [])
 
     useEffect(() => {
@@ -56,7 +56,7 @@ export default function Spreadsheet() {
             <button
                 key={'reset-button'}
                 className="reset-button"
-                onClick={() => reset(setSheet, setErrors)}
+                onClick={() => reset(setSheet)}
             >
                 ↻
             </button>
