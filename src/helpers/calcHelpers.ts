@@ -27,28 +27,28 @@ export function calc(
     console.log('calc worker', worker, 'sheet', sheet)
     var json = JSON.stringify(Object.fromEntries(new Map(sheet)))
 
-    var promise = setTimeout(() => {
-        console.log('timeout')
-        // If the worker has not returned in 499 milliseconds, terminate it
-        worker.terminate()
-        // Back up to the previous state and make a new worker
-        init(setWorker, sheet, setSheet, values, setValues, errors, setErrors)
-        // Redo the calculation using the last-known state
-        calc(
-            worker,
-            setWorker,
-            sheet,
-            setSheet,
-            errors,
-            setErrors,
-            values,
-            setValues
-        )
-    }, 1099)
+    // var promise = setTimeout(() => {
+    //     console.log('timeout')
+    //     // If the worker has not returned in 499 milliseconds, terminate it
+    //     worker.terminate()
+    //     // Back up to the previous state and make a new worker
+    //     init(setWorker, sheet, setSheet, values, setValues, errors, setErrors)
+    //     // Redo the calculation using the last-known state
+    //     calc(
+    //         worker,
+    //         setWorker,
+    //         sheet,
+    //         setSheet,
+    //         errors,
+    //         setErrors,
+    //         values,
+    //         setValues
+    //     )
+    // }, 1099)
 
     // When the worker returns, apply its effect on the scope
     worker.onmessage = function (event) {
-        clearTimeout(promise)
+        // clearTimeout(promise)
 
         // If we successfully receive a message then save the current sheet as a backup
         const currSheet = Object.entries(sheet)
@@ -110,9 +110,9 @@ function createWorker(worker: () => any) {
     // Change the worker we defined in "app.worker.js" to an object URL.
     // so we dont have to use filenames directly
 
-    console.log('worker:', worker)
+    // console.log('worker:', worker)
     const code = worker.toString()
-    console.log('code:', worker.toString())
+    // console.log('code:', worker.toString())
     const blob = new Blob(['(' + code + ')()'])
     return new Worker(URL.createObjectURL(blob))
 }
