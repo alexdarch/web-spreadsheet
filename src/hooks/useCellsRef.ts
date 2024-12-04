@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { fromCellId } from '../helpers/helpers'
+import { fromCellName } from '../helpers/cellHelpers'
 
 export default function useCellsRef(
     initialCell: string | undefined,
@@ -45,7 +45,7 @@ export default function useCellsRef(
             return
         }
 
-        let { col, row } = fromCellId(cell)
+        let { col, row } = fromCellName(cell)
         if (cellRefs?.current[col] && cellRefs.current[col][row]) {
             cellRefs.current[col][row]?.focus()
         }
@@ -58,7 +58,7 @@ export default function useCellsRef(
     //         setFocusedCell(focusedCell)
     //         return
     //     }
-    //     let { col, row } = fromCellId(focusedCell)
+    //     let { col, row } = fromCellName(focusedCell)
     //     if (cellRefs?.current[col] && cellRefs.current[col][row]) {
     //         cellRefs.current[col][row]?.focus()
     //     }

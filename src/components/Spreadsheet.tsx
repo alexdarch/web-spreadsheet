@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect, ReactElement } from 'react'
 import HeaderCell from './HeaderCell'
-import { toCellId } from '../helpers/helpers'
+import { toCellName, toColName } from '../helpers/cellHelpers'
 import { onKeyDown, onMouseDown } from '../helpers/eventHelpers'
+import { calc, reset, init } from '../helpers/calcHelpers'
 import Cell from './Cell'
 import '../styles/Components.css'
 import useCellsRef from '../hooks/useCellsRef'
-import useWorker from '../hooks/useWorker'
-import cellCalculationWorker from '../workers/cellCalculationWorker'
+import { SheetTypes } from '../types/types'
 
 export default function Spreadsheet() {
     const numColumns = 30
@@ -18,37 +18,37 @@ export default function Spreadsheet() {
         numRows
     )
 
-    const [result, setResult, worker] = useWorker(() => cellCalculationWorker)
+    const [worker, setWorker] = useState<Worker | null>(null)
+    const [sheet, setSheet] = useState(new Map<string, SheetTypes>([]))
+    const [errors, setErrors] = useState(new Map<string, SheetTypes>([]))
+    const [values, setValues] = useState(new Map<string, SheetTypes>([]))
 
     useEffect(() => {
-        if (worker) {
-            const randNum = Math.random()
-            console.log('Generated random number: ', randNum)
-            worker.postMessage(randNum)
+        init(setWorker, sheet, setSheet, errors, setErrors, values, setValues)
+    }, [])
+
+    useEffect(() => {
+        if (!worker || !sheet) {
+            return
         }
-    }, [focusedCell, worker])
+        console.log('focussed cell change. Sheet: ', sheet)
+        calc(
+            worker,
+            setWorker,
+            sheet,
+            setSheet,
+            errors,
+            setErrors,
+            values,
+            setValues
+        )
 
-    useEffect(() => {
-        console.log('Received result!: ', result)
-    }, [result])
-
-    // const [values, setValues] = useState(
-    //     Array<string>(numColumns).map((_) => Array<string>(numRows))
-    // )
-    // const [expressions, setExpressions] = useState(
-    //     Array<string>(numColumns).map((_) => Array<string>(numRows))
-    // )
-    // const [errors, setErrors] = useState(
-    //     Array<string>(numColumns).map((_) => Array<string>(numRows))
-    // )
+        // TODO: call the calc when we run F9 or press enter on a particular cell.
+        // Start with a particular cell, proxied by focusedCell for now
+    }, [focusedCell, sheet])
 
     const headerRow = Array.from(Array(numColumns).keys()).map((index) => {
-        let column = ''
-        while (index > 0) {
-            let remainder = (index - 1) % 26
-            column = String.fromCharCode(65 + remainder) + column
-            index = Math.floor((index - 1) / 26)
-        }
+        const column = toColName(index)
         return <HeaderCell key={column} contents={column} />
     })
     headerRow[0] = (
@@ -56,7 +56,7 @@ export default function Spreadsheet() {
             <button
                 key={'reset-button'}
                 className="reset-button"
-                onClick={() => alert('clicked')}
+                onClick={() => reset(setSheet)}
             >
                 ↻
             </button>
@@ -76,14 +76,23 @@ export default function Spreadsheet() {
         }
     }, [numColumns, numRows, focusedCell])
 
+    // Then call the worker on the sheet and update the errors and sheet
+    // At first just return this fixed list of errors
+    // TODO: ignore workers and just allow typing of strings and numbers
+    // Then if number is negative then show error message?
+    // TODO:
     function createRow(row: number): JSX.Element[] {
         return Array.from(Array(numColumns - 1).keys()).map((col) => {
             return (
                 <Cell
-                    key={`${toCellId(col, row)}-cell`}
-                    row={row}
-                    col={col}
+                    key={`${toCellName(col, row)}-cell`}
+                    row={row + 1}
+                    col={col + 1}
                     setCellRef={setCellRef}
+                    sheet={sheet}
+                    setSheet={setSheet}
+                    error={errors.get(toCellName(col, row))}
+                    value={values.get(toCellName(col, row))}
                 />
             )
         })
@@ -96,7 +105,7 @@ export default function Spreadsheet() {
                 {Array.from(Array(numRows - 1).keys()).map((rowNum) => (
                     <tr key={rowNum}>
                         <HeaderCell
-                            key={toCellId(0, rowNum)}
+                            key={toCellName(0, rowNum)}
                             contents={(rowNum + 1).toString()}
                         />
                         {createRow(rowNum)}
